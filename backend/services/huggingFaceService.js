@@ -41,7 +41,20 @@ const invokeModel = async (prompt, taskDescription) => {
             }),
             'beginner explanation': 'Variable scope in Python refers to where a variable is accessible in your code. Think of it like a box: variables inside the box can only be seen inside that box. This helps organize code and prevent naming conflicts.',
             'advanced challenge': 'Create a Promise-based rate limiter that allows maximum 3 API calls per second. Your solution should queue excess requests.',
-            'learning roadmap': 'Day 1-2: Review variable scope basics\nDay 3-4: Practice with closure exercises\nDay 5-6: Implement async/await examples\nDay 7: Build a project combining both concepts'
+            'learning roadmap': 'Day 1-2: Review variable scope basics\nDay 3-4: Practice with closure exercises\nDay 5-6: Implement async/await examples\nDay 7: Build a project combining both concepts',
+            'judge: quiz quality': JSON.stringify({
+                difficulty_level: 'medium',
+                is_well_formed: true,
+                confidence: 0.92,
+                feedback: 'Well-structured questions that progress logically from foundational to advanced concepts. Questions are clear and unambiguous.'
+            }),
+            'judge: analysis validation': JSON.stringify({
+                adjusted_score: 75,
+                confidence_level: 0.88,
+                validates_initial_analysis: true,
+                suggested_adjustments: ['Consider the depth of answer for Q2', 'Strong conceptual understanding evident'],
+                judge_notes: 'Initial analysis is sound. Score adjusted slightly upward due to quality of explanations provided.'
+            })
         };
         return mockResponses[taskDescription] || 'Mock response for: ' + taskDescription;
     }

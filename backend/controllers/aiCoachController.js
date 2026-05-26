@@ -1,6 +1,7 @@
 // controllers/aiCoachController.js
 
 const hfService = require('../services/huggingFaceService');
+const judgeService = require('../services/judgeService');
 const promptUtils = require('../utils/aiPromptUtils');
 const asyncHandler = require('../utils/asyncHandler');
 const safeJsonParse = require('../utils/safeJsonParse');
@@ -13,6 +14,7 @@ const ApiError = require('../utils/ApiError');
  */
 const generateQuestions = asyncHandler(async (req, res, next) => {
     const { topic } = req.body;
+    const enableJudge = process.env.ENABLE_JUDGE_MODE === 'true';
 
     // --- CALL 0: Generate quiz questions ---
     const questionsPrompt = promptUtils.createQuizGenerationPrompt(topic);
@@ -24,11 +26,23 @@ const generateQuestions = asyncHandler(async (req, res, next) => {
         throw new ApiError('The AI failed to generate valid quiz questions.', 500);
     }
 
+    let judgeValidation = null;
+
+    // --- OPTIONAL CALL 1: Judge verifies quiz quality ---
+    if (enableJudge) {
+        try {
+            judgeValidation = await judgeService.verifyQuizQuality(topic, questionsData.questions);
+        } catch (error) {
+            console.warn('Judge verification failed, returning questions without validation:', error.message);
+        }
+    }
+
     res.status(200).json({
         success: true,
         data: {
             topic,
             questions: questionsData.questions,
+            ...(judgeValidation && { judgeValidation })
         }
     });
 });
@@ -40,6 +54,7 @@ const generateQuestions = asyncHandler(async (req, res, next) => {
  */
 const processEvaluation = asyncHandler(async (req, res, next) => {
     const { topic, answers, questions } = req.body;
+    const enableJudge = process.env.ENABLE_JUDGE_MODE === 'true';
 
     // --- CALL 1: Analyze learner answers ---
     const analysisPrompt = promptUtils.createAnalysisPrompt(topic, questions, answers);
@@ -51,9 +66,25 @@ const processEvaluation = asyncHandler(async (req, res, next) => {
         throw new ApiError('The AI returned an invalid analysis object.', 500);
     }
 
+    let enhancedAnalysis = null;
+
+    // --- OPTIONAL CALL 2: Judge enhances answer analysis ---
+    if (enableJudge) {
+        try {
+            enhancedAnalysis = await judgeService.enhanceAnswerAnalysis(topic, questions, answers, analysis);
+        } catch (error) {
+            console.warn('Judge enhancement failed, using initial analysis:', error.message);
+        }
+    }
+
+    // Use judge's adjusted score if available and confident, otherwise use initial score
+    const finalScore = enhancedAnalysis && enhancedAnalysis.validates_initial_analysis
+        ? enhancedAnalysis.adjusted_score
+        : analysis.score;
+
     let coachingResponseText;
-    // --- CALL 2: Generate coaching based on score ---
-    if (analysis.score < 50) {
+    // --- CALL 3: Generate coaching based on score ---
+    if (finalScore < 50) {
         // Generate beginner-friendly explanations
         if (analysis.weak_topics.length > 0) {
             const beginnerPrompt = promptUtils.createBeginnerExplanationPrompt(topic, analysis.weak_topics);
@@ -71,7 +102,7 @@ const processEvaluation = asyncHandler(async (req, res, next) => {
         }
     }
 
-    // --- CALL 3: Generate personalized 7-day learning roadmap ---
+    // --- CALL 4: Generate personalized 7-day learning roadmap ---
     const roadmapPrompt = promptUtils.createRoadmapPrompt(topic, analysis);
     const roadmapResponseText = await hfService.invokeModel(roadmapPrompt, 'learning roadmap');
 
@@ -79,7 +110,11 @@ const processEvaluation = asyncHandler(async (req, res, next) => {
     res.status(200).json({
         success: true,
         data: {
-            analysis: analysis,
+            analysis: {
+                ...analysis,
+                score: finalScore
+            },
+            ...(enhancedAnalysis && { judgeEnhancement: enhancedAnalysis }),
             coaching: coachingResponseText,
             roadmap: roadmapResponseText,
         }
