@@ -103,7 +103,7 @@ Generate challenging problems based on these strengths.
 };
 
 /**
- * Creates a prompt to generate a personalized 7-day learning roadmap.
+ * Creates a prompt to generate a personalized 60-day comprehensive learning roadmap.
  * @param {string} topic - The main learning topic.
  * @param {object} analysis - The analysis object containing score, weaknesses, and strengths.
  * @returns {string} The formatted prompt for the LLM.
@@ -111,21 +111,43 @@ Generate challenging problems based on these strengths.
 const createRoadmapPrompt = (topic, analysis) => {
   const { score, weak_topics, strengths } = analysis;
 
-  return `[INST] You are an expert AI learning coach. A learner has just been assessed on the topic of "${topic}".
+  return `[INST] You are an expert AI learning coach and curriculum designer. A learner has just been assessed on the topic of "${topic}".
 Their performance analysis is as follows:
 - Overall Score: ${score}/100
 - Strengths: ${strengths.join(', ') || 'None identified'}
 - Weaknesses: ${weak_topics.join(', ') || 'None identified'}
 
-Your task is to create a practical, realistic 7-day learning roadmap for "${topic}".
-This plan should NOT promise mastery in one week. Instead, provide clear daily objectives, concrete study or practice actions, and realistic outcomes.
-Include:
-- daily goals and focus areas,
-- specific exercises or resources to try,
-- a short list of common job roles that use this technology,
-- and a brief next-step recommendation for learning after day 7.
+Your task is to create a comprehensive, realistic 60-day learning roadmap for "${topic}" that covers ALL fundamental and advanced topics in this domain.
 
-Keep the roadmap detailed, actionable, and easy to follow.
+The roadmap MUST:
+1. Organize content into 4 phases (Phase 1-4, 15 days each):
+   - Phase 1 (Days 1-15): Foundations and Basics
+   - Phase 2 (Days 16-30): Core Concepts and Practical Application
+   - Phase 3 (Days 31-45): Advanced Topics and Best Practices
+   - Phase 4 (Days 46-60): Mastery, Projects, and Career Preparation
+
+2. For EACH PHASE, list:
+   - Week overview (what will be covered)
+   - Specific subtopics/modules to learn (at least 4-5 per phase)
+   - Concrete learning activities and exercises
+   - Projects or hands-on practice
+   - Resources (type of resources, not specific links)
+   - Expected outcome by end of phase
+
+3. Include:
+   - Common job roles that use "${topic}"
+   - Career paths and salary ranges
+   - Industry applications and use cases
+   - Recommended tools and technologies to learn alongside "${topic}"
+   - Prerequisites needed before starting
+   - Performance milestones to track progress
+
+4. Consider:
+   - Learner's current level (score: ${score}/100)
+   - Focus on weak areas: ${weak_topics.join(', ') || 'general improvement'}
+   - Build on existing strengths: ${strengths.join(', ') || 'foundational knowledge'}
+
+Make the roadmap detailed, actionable, realistic, and motivating. Include time estimates for each activity.
 [/INST]
 `;
 };

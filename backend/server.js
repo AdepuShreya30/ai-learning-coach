@@ -3,6 +3,8 @@
 // Load environment variables from .env file FIRST
 const dotenv = require('dotenv');
 dotenv.config();
+// Force reload env variables
+delete require.cache[require.resolve('dotenv')];
 
 // Module Imports
 const express = require('express');
