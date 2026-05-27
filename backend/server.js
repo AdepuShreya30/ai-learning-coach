@@ -8,6 +8,7 @@ dotenv.config();
 const express = require('express');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const cors = require('cors');
 
 // Middleware and Util Imports
 const errorHandler = require('./middleware/errorHandler');
@@ -23,8 +24,16 @@ const app = express();
 
 // --- Core Middleware ---
 
-// Set security HTTP headers
-app.use(helmet());
+// Set security HTTP headers (disable CORS-blocking for development)
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+}));
+
+// Enable CORS for frontend communication
+app.use(cors({
+  origin: process.env.NODE_ENV === 'development' ? '*' : process.env.FRONTEND_URL,
+  credentials: true,
+}));
 
 // Body parser middleware to handle raw JSON
 app.use(express.json());
