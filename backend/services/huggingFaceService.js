@@ -202,12 +202,77 @@ const invokeModel = async (prompt, taskDescription) => {
 }
 
 /**
+ * Validates that all topics and tools belong to the correct domain.
+ * Prevents cross-domain contamination (e.g., JavaScript tools in Java roadmaps).
+ */
+const validateDomainConsistency = (topic, data) => {
+    const topicLower = topic.toLowerCase();
+
+    // Define what should NOT appear in each domain
+    const domainConstraints = {
+        'java': {
+            forbidden: ['node.js', 'npm', 'yarn', 'webpack', 'babel', 'react', 'vue', 'angular', 'express.js', 'puppeteer'],
+            required: ['spring', 'maven', 'gradle', 'junit', 'jdbc', 'jvm']
+        },
+        'javascript': {
+            forbidden: ['spring boot', 'maven', 'gradle', 'junit', 'jdbc', 'jpa', 'hibernate', 'swing', 'eclipse ide'],
+            required: ['node.js', 'npm', 'webpack', 'babel', 'javascript']
+        },
+        'react': {
+            forbidden: ['spring', 'maven', 'java', 'junit', 'jvm'],
+            required: ['react', 'jsx', 'node.js', 'npm', 'webpack']
+        },
+        'python': {
+            forbidden: ['spring boot', 'maven', 'npm', 'webpack', 'react', 'angular'],
+            required: ['pip', 'python', 'pytest']
+        },
+        'docker': {
+            forbidden: ['react', 'angular', 'vue', 'npm'],
+            required: ['docker', 'container']
+        },
+        'kubernetes': {
+            forbidden: ['react', 'angular', 'npm', 'webpack'],
+            required: ['kubernetes', 'pod', 'container']
+        }
+    };
+
+    // Get constraints for this topic if they exist
+    let constraints = null;
+    for (const [key, constraint] of Object.entries(domainConstraints)) {
+        if (topicLower.includes(key) || key.includes(topicLower)) {
+            constraints = constraint;
+            break;
+        }
+    }
+
+    if (!constraints) return true; // No validation needed for unknown topics
+
+    // Check for forbidden items
+    const allContent = [
+        ...data.phase1Topics,
+        ...data.phase2Topics,
+        ...data.phase3Topics,
+        ...data.phase4Topics,
+        ...data.tools
+    ].join(' ').toLowerCase();
+
+    for (const forbidden of constraints.forbidden) {
+        if (allContent.includes(forbidden)) {
+            console.warn(`[DOMAIN VALIDATION] Found forbidden "${forbidden}" in ${topic} roadmap - removing cross-domain contamination`);
+            return false;
+        }
+    }
+
+    return true;
+};
+
+/**
  * Generates topic-specific learning roadmaps with customized content
  */
 const generateTopicSpecificRoadmap = (topic) => {
     const topicLower = topic.toLowerCase();
 
-    // Define topic-specific curriculum data
+    // Define topic-specific curriculum data with strict domain separation
     const topicData = {
         'python': {
             phase1Topics: ['Python syntax and basics', 'Data types and variables', 'Control structures (loops, conditionals)', 'Functions and modules', 'File I/O', 'Exception handling'],
@@ -330,12 +395,58 @@ const generateTopicSpecificRoadmap = (topic) => {
         }
     };
 
-    // Match topic to nearest category
+    // Match topic to nearest category - EXACT MATCH FIRST to prevent "java" matching "javascript"
     let matched = null;
-    for (const [key, data] of Object.entries(topicData)) {
-        if (topicLower.includes(key) || key.includes(topicLower)) {
-            matched = data;
-            break;
+
+    // Priority 1: Exact or case-insensitive match (longest match first to avoid "java" matching "javascript")
+    // Sort by length descending to match longer keys first
+    const exactMatches = ['machine learning', 'javascript', 'kubernetes', 'python', 'docker', 'react', 'java'].sort((a, b) => b.length - a.length);
+    for (const key of exactMatches) {
+        // Case-insensitive check: exact match or as a separate token
+        if (topicLower === key || topicLower.startsWith(key + ' ') || topicLower.endsWith(' ' + key) || topicLower.includes(' ' + key + ' ')) {
+            const data = topicData[key];
+            if (data) {
+                // Validate domain consistency before using this data
+                if (validateDomainConsistency(topic, data)) {
+                    matched = data;
+                    console.log(`[DOMAIN VALIDATION] ✅ ${topic} roadmap passed domain validation (exact match: ${key})`);
+                    break;
+                } else {
+                    console.error(`[DOMAIN VALIDATION] ❌ ${topic} roadmap failed domain validation - contains cross-domain content`);
+                    matched = null;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Priority 2: Fuzzy matching if no exact match found (longest matches first)
+    if (!matched) {
+        // Convert topicData entries to array and sort by key length (longest first) to match longer keys before substrings
+        const sortedEntries = Object.entries(topicData).sort((a, b) => b[0].length - a[0].length);
+
+        for (const [key, data] of sortedEntries) {
+            // Check if topic contains the key as a substring (but longer keys first to avoid "java" matching "javascript")
+            if (topicLower.includes(key) || key.includes(topicLower)) {
+                // Additional validation: ensure "java" doesn't match "javascript"
+                if (key === 'java' && topicLower.includes('javascript')) {
+                    continue; // Skip this match, it's a false positive
+                }
+                if (key === 'javascript' && topicLower === 'java') {
+                    continue; // Skip, exact mismatch
+                }
+
+                // Validate domain consistency before using this data
+                if (validateDomainConsistency(topic, data)) {
+                    matched = data;
+                    console.log(`[DOMAIN VALIDATION] ✅ ${topic} roadmap passed domain validation (fuzzy match: ${key})`);
+                    break;
+                } else {
+                    console.error(`[DOMAIN VALIDATION] ❌ ${topic} roadmap failed domain validation - contains cross-domain content (fuzzy match: ${key})`);
+                    matched = null;
+                    // Don't break here - try other keys
+                }
+            }
         }
     }
 
