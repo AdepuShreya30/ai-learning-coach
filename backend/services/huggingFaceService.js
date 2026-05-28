@@ -28,6 +28,7 @@ const invokeModel = async (prompt, taskDescription) => {
 
     // Try real API first, fall back to intelligent mock if model not supported
     const useMockMode = false;
+    let attemptedRealAPI = false;
 
     if (useMockMode) {
         console.log(`--- Using MOCK response for: ${taskDescription} ---`);
@@ -144,7 +145,10 @@ const invokeModel = async (prompt, taskDescription) => {
     }
 
     try {
+        attemptedRealAPI = true;
         console.log(`[HF Service] Sending request to: ${HF_API_BASE_URL}/chat/completions`);
+        console.log(`[HF Service] This is a REAL API call to HuggingFace (NOT mock mode)`);
+
         const response = await fetch(`${HF_API_BASE_URL}/chat/completions`, {
             method: 'POST',
             headers: {
@@ -170,11 +174,12 @@ const invokeModel = async (prompt, taskDescription) => {
         if (!response.ok) {
             const errorText = await response.text();
             console.error(`[ERROR] HuggingFace API returned ${response.status}:`, errorText);
+            console.log(`[INFO] Model '${model}' may not be available in your account's enabled providers`);
             throw new ApiError(`HuggingFace API Error: ${response.status} ${response.statusText}. ${errorText}`, response.status);
         }
 
         const data = await response.json();
-        console.log(`[HF Service] Response received:`, JSON.stringify(data).substring(0, 200));
+        console.log(`[HF Service] ✅ Real LLM response received:`, JSON.stringify(data).substring(0, 200));
 
         const generatedText = data.choices?.[0]?.message?.content;
 
@@ -182,17 +187,335 @@ const invokeModel = async (prompt, taskDescription) => {
             throw new ApiError(`LLM failed to generate a response for ${taskDescription}.`, 502);
         }
 
-        console.log(`--- LLM invocation successful for: ${taskDescription} ---`);
+        console.log(`✅✅✅ --- SUCCESS: LLM invocation successful for: ${taskDescription} ---`);
         return generatedText;
 
     } catch (error) {
         console.error(`[WARNING] HuggingFace API failed during ${taskDescription}:`, error.message);
-        console.log(`[FALLBACK] Switching to intelligent mock mode...`);
+        console.log(`[INFO] ⚠️ Your HuggingFace token or model selection may not have access to inference`);
+        console.log(`[FALLBACK] Switching to intelligent mock mode (mock responses only)...`);
+        console.log(`[INFO] To use real LLM: upgrade your HuggingFace account or use Pro tier`);
 
         // Fall back to intelligent mock when API fails
         return generateIntelligentMockResponse(prompt, taskDescription);
     }
 }
+
+/**
+ * Generates topic-specific learning roadmaps with customized content
+ */
+const generateTopicSpecificRoadmap = (topic) => {
+    const topicLower = topic.toLowerCase();
+
+    // Define topic-specific curriculum data
+    const topicData = {
+        'python': {
+            phase1Topics: ['Python syntax and basics', 'Data types and variables', 'Control structures (loops, conditionals)', 'Functions and modules', 'File I/O', 'Exception handling'],
+            phase2Topics: ['Object-Oriented Programming (OOP)', 'Data structures (lists, dicts, sets)', 'Libraries and packages', 'Debugging and testing', 'Regular expressions', 'Working with APIs'],
+            phase3Topics: ['Advanced OOP patterns', 'Async programming', 'Performance optimization', 'Memory management', 'Design patterns', 'Concurrency and threading'],
+            phase4Topics: ['Production deployment', 'CI/CD pipelines', 'Performance profiling', 'Contributing to open-source', 'System design', 'Interview preparation'],
+            projects: ['Command-line calculator', 'To-do list application', 'Web scraper', 'Data analysis project', 'Django/Flask web app', 'Machine learning project'],
+            tools: ['pip', 'virtualenv', 'pytest', 'flake8', 'Django', 'Flask', 'NumPy', 'Pandas', 'Jupyter Notebook'],
+            jobRoles: [
+                { title: 'Python Developer', salary: '$90k-$150k/year' },
+                { title: 'Data Scientist', salary: '$100k-$180k/year' },
+                { title: 'Backend Engineer', salary: '$95k-$165k/year' },
+                { title: 'Full-Stack Developer', salary: '$90k-$160k/year' },
+                { title: 'ML Engineer', salary: '$110k-$190k/year' },
+                { title: 'DevOps Engineer', salary: '$100k-$170k/year' }
+            ],
+            industryApps: ['Web development', 'Data science and analytics', 'Machine learning', 'Automation and scripting', 'Scientific computing', 'Game development', 'Fintech and trading systems']
+        },
+        'react': {
+            phase1Topics: ['JSX and component basics', 'Props and state', 'Hooks (useState, useEffect)', 'Component lifecycle', 'Styling in React', 'React DevTools'],
+            phase2Topics: ['Managing complex state', 'Context API', 'Form handling', 'API integration', 'Routing with React Router', 'Performance optimization'],
+            phase3Topics: ['Advanced state management (Redux)', 'Middleware patterns', 'Server-side rendering', 'Code splitting and lazy loading', 'Testing strategies', 'Accessibility (a11y)'],
+            phase4Topics: ['Production optimization', 'Next.js framework', 'TypeScript integration', 'UI component libraries', 'Open-source contributions', 'Interview patterns'],
+            projects: ['Counter app', 'Todo list', 'Weather app', 'E-commerce product page', 'Social media feed', 'Real-time chat application'],
+            tools: ['Create React App', 'Webpack', 'Babel', 'React Router', 'Redux', 'Jest', 'React Testing Library', 'Next.js', 'TypeScript'],
+            jobRoles: [
+                { title: 'Frontend Engineer', salary: '$95k-$165k/year' },
+                { title: 'React Developer', salary: '$90k-$160k/year' },
+                { title: 'Full-Stack Developer', salary: '$100k-$175k/year' },
+                { title: 'Senior Frontend Engineer', salary: '$130k-$210k/year' },
+                { title: 'UI Engineer', salary: '$90k-$155k/year' },
+                { title: 'Product Engineer', salary: '$100k-$180k/year' }
+            ],
+            industryApps: ['Web applications', 'Single Page Applications (SPAs)', 'Progressive Web Apps (PWAs)', 'Mobile apps (React Native)', 'Dashboard and analytics', 'Real-time collaborative tools']
+        },
+        'javascript': {
+            phase1Topics: ['JavaScript fundamentals', 'DOM manipulation', 'Events and event handling', 'Asynchronous JavaScript', 'Promises and async/await', 'ES6+ features'],
+            phase2Topics: ['Closures and scope', 'Functional programming', 'Array and object methods', 'Error handling', 'Regular expressions', 'Module systems'],
+            phase3Topics: ['Web APIs and browser features', 'Performance optimization', 'Security best practices', 'Design patterns', 'Memory management', 'Advanced async patterns'],
+            phase4Topics: ['Building frameworks', 'Full-stack JavaScript', 'Testing and debugging', 'Performance monitoring', 'DevOps integration', 'Technical interviewing'],
+            projects: ['Interactive webpage', 'Todo app', 'Weather API app', 'Game (Snake or Flappy Bird)', 'Chat application', 'Full-stack MERN app'],
+            tools: ['Node.js', 'npm/yarn', 'Webpack', 'Babel', 'Jest', 'ESLint', 'Express.js', 'Mocha', 'Puppeteer'],
+            jobRoles: [
+                { title: 'JavaScript Developer', salary: '$85k-$150k/year' },
+                { title: 'Frontend Developer', salary: '$90k-$160k/year' },
+                { title: 'Full-Stack Developer', salary: '$95k-$170k/year' },
+                { title: 'Backend Engineer (Node.js)', salary: '$95k-$165k/year' },
+                { title: 'DevOps Engineer', salary: '$100k-$175k/year' },
+                { title: 'Solutions Architect', salary: '$120k-$200k/year' }
+            ],
+            industryApps: ['Web applications', 'Server-side applications (Node.js)', 'Mobile apps (React Native, Electron)', 'Real-time applications', 'Browser extensions', 'Automation and scripting']
+        },
+        'docker': {
+            phase1Topics: ['Docker concepts and architecture', 'Images and containers', 'Dockerfile creation', 'Docker networking', 'Volumes and storage', 'Docker CLI commands'],
+            phase2Topics: ['Docker Compose', 'Multi-stage builds', 'Container orchestration basics', 'Registry management', 'Security best practices', 'Monitoring containers'],
+            phase3Topics: ['Kubernetes fundamentals', 'Advanced Kubernetes', 'Service mesh (Istio)', 'Container optimization', 'CI/CD with Docker', 'Production deployment'],
+            phase4Topics: ['Cloud deployment (AWS, GCP, Azure)', 'Infrastructure as Code', 'DevOps pipeline design', 'Scaling strategies', 'Open-source contributions', 'Architecture design'],
+            projects: ['Dockerize a web app', 'Multi-container application', 'Microservices deployment', 'CI/CD pipeline', 'Kubernetes cluster setup', 'Production infrastructure'],
+            tools: ['Docker Desktop', 'Docker Compose', 'Kubernetes', 'Helm', 'Jenkins', 'GitLab CI', 'GitHub Actions', 'Harbor Registry', 'Prometheus'],
+            jobRoles: [
+                { title: 'DevOps Engineer', salary: '$105k-$185k/year' },
+                { title: 'SRE (Site Reliability Engineer)', salary: '$115k-$195k/year' },
+                { title: 'Infrastructure Engineer', salary: '$100k-$180k/year' },
+                { title: 'Cloud Engineer', salary: '$110k-$190k/year' },
+                { title: 'Solutions Architect', salary: '$130k-$220k/year' },
+                { title: 'Platform Engineer', salary: '$110k-$190k/year' }
+            ],
+            industryApps: ['Microservices architecture', 'Cloud infrastructure', 'CI/CD pipelines', 'Container orchestration', 'DevOps automation', 'Scalable systems', 'Multi-cloud deployment']
+        },
+        'machine learning': {
+            phase1Topics: ['ML fundamentals and terminology', 'Supervised vs unsupervised learning', 'Data preprocessing', 'Feature engineering', 'Training and testing splits', 'Evaluation metrics'],
+            phase2Topics: ['Classification algorithms', 'Regression algorithms', 'Decision trees and random forests', 'Support Vector Machines', 'K-means clustering', 'Dimensionality reduction'],
+            phase3Topics: ['Deep learning and neural networks', 'Convolutional Neural Networks (CNNs)', 'Recurrent Neural Networks (RNNs)', 'Natural Language Processing', 'Computer vision', 'Transfer learning'],
+            phase4Topics: ['Model deployment', 'MLOps and model management', 'Reinforcement learning', 'Advanced optimization', 'Research papers and implementations', 'Production ML systems'],
+            projects: ['Iris flower classification', 'Housing price prediction', 'Handwritten digit recognition (MNIST)', 'Sentiment analysis', 'Image classification', 'Recommendation system'],
+            tools: ['Python', 'NumPy', 'Pandas', 'Scikit-learn', 'TensorFlow', 'PyTorch', 'Jupyter Notebook', 'Matplotlib', 'Seaborn', 'MLflow'],
+            jobRoles: [
+                { title: 'Machine Learning Engineer', salary: '$110k-$190k/year' },
+                { title: 'Data Scientist', salary: '$100k-$180k/year' },
+                { title: 'AI/ML Specialist', salary: '$115k-$195k/year' },
+                { title: 'Research Scientist', salary: '$120k-$200k/year' },
+                { title: 'Deep Learning Engineer', salary: '$115k-$195k/year' },
+                { title: 'MLOps Engineer', salary: '$110k-$190k/year' }
+            ],
+            industryApps: ['Predictive analytics', 'Computer vision', 'Natural language processing', 'Recommendation systems', 'Autonomous vehicles', 'Healthcare diagnostics', 'Financial forecasting']
+        },
+        'kubernetes': {
+            phase1Topics: ['Kubernetes architecture', 'Pods and containers', 'Deployments and services', 'ConfigMaps and secrets', 'Namespaces', 'kubectl basics'],
+            phase2Topics: ['StatefulSets and DaemonSets', 'Persistent volumes and claims', 'Ingress and networking', 'Resource quotas and limits', 'Health checks', 'Scheduling and affinity'],
+            phase3Topics: ['RBAC and security', 'Custom Resource Definitions (CRDs)', 'Operators', 'Service mesh', 'Monitoring and logging', 'High availability'],
+            phase4Topics: ['Multi-cluster deployments', 'GitOps workflows', 'Cost optimization', 'Advanced networking', 'Helm and templating', 'Production hardening'],
+            projects: ['Deploy a simple app', 'Multi-tier application', 'Stateful application', 'Service mesh setup', 'Custom operator', 'Production cluster'],
+            tools: ['kubectl', 'Helm', 'Docker', 'Istio', 'Prometheus', 'Grafana', 'Jaeger', 'ArgoCD', 'Kustomize'],
+            jobRoles: [
+                { title: 'Kubernetes Engineer', salary: '$110k-$190k/year' },
+                { title: 'DevOps Engineer', salary: '$105k-$185k/year' },
+                { title: 'SRE', salary: '$115k-$195k/year' },
+                { title: 'Platform Engineer', salary: '$110k-$190k/year' },
+                { title: 'Cloud Architect', salary: '$130k-$220k/year' },
+                { title: 'Infrastructure Engineer', salary: '$105k-$185k/year' }
+            ],
+            industryApps: ['Container orchestration', 'Microservices deployment', 'Scalable infrastructure', 'Cloud-native applications', 'Edge computing', 'Multi-cloud strategies']
+        },
+        'java': {
+            phase1Topics: ['Java fundamentals and syntax', 'OOP concepts', 'Data types and variables', 'Control structures', 'Exception handling', 'Collections framework'],
+            phase2Topics: ['Advanced OOP patterns', 'File I/O and streams', 'Multithreading', 'String handling', 'Generics and wildcards', 'Reflection API'],
+            phase3Topics: ['Design patterns', 'Spring framework basics', 'Database connectivity (JDBC)', 'Web services (REST, SOAP)', 'Performance tuning', 'Memory management'],
+            phase4Topics: ['Spring Boot and microservices', 'Cloud deployment (Spring Cloud)', 'Advanced patterns', 'Testing frameworks', 'Distributed systems', 'Interview preparation'],
+            projects: ['Calculator program', 'Bank account system', 'Student management system', 'REST API', 'Spring Boot application', 'Microservices architecture'],
+            tools: ['JDK', 'Maven', 'Gradle', 'Spring Boot', 'Hibernate', 'JUnit', 'Mockito', 'Apache Tomcat', 'IntelliJ IDEA'],
+            jobRoles: [
+                { title: 'Java Developer', salary: '$95k-$165k/year' },
+                { title: 'Backend Engineer', salary: '$100k-$175k/year' },
+                { title: 'Full-Stack Developer', salary: '$100k-$180k/year' },
+                { title: 'Senior Java Developer', salary: '$130k-$210k/year' },
+                { title: 'Microservices Engineer', salary: '$110k-$190k/year' },
+                { title: 'Solutions Architect', salary: '$130k-$220k/year' }
+            ],
+            industryApps: ['Enterprise applications', 'Web services', 'Microservices', 'Android development', 'Big data processing', 'Financial systems', 'E-commerce platforms']
+        }
+    };
+
+    // Match topic to nearest category
+    let matched = null;
+    for (const [key, data] of Object.entries(topicData)) {
+        if (topicLower.includes(key) || key.includes(topicLower)) {
+            matched = data;
+            break;
+        }
+    }
+
+    // Fall back to generic template if no match found
+    if (!matched) {
+        matched = {
+            phase1Topics: ['Core concepts', 'Fundamentals', 'Basic terminology', 'Setup and tools', 'First projects', 'Best practices'],
+            phase2Topics: ['Advanced concepts', 'Practical applications', 'Design patterns', 'Integration', 'Optimization', 'Real-world projects'],
+            phase3Topics: ['Expert techniques', 'Performance optimization', 'Security', 'Architecture', 'Advanced patterns', 'Scalability'],
+            phase4Topics: ['Portfolio development', 'Open-source contributions', 'Career preparation', 'Specialization', 'Leadership skills', 'Mentoring'],
+            projects: ['Beginner project', 'Intermediate project', 'Advanced project', 'Real-world project', 'Portfolio project', 'Capstone project'],
+            tools: ['Primary tools', 'Testing tools', 'Development tools', 'Deployment tools', 'Monitoring tools', 'Collaboration tools'],
+            jobRoles: [
+                { title: 'Software Engineer', salary: '$95k-$165k/year' },
+                { title: 'Senior Engineer', salary: '$130k-$210k/year' },
+                { title: 'Architect', salary: '$140k-$230k/year' }
+            ],
+            industryApps: ['Enterprise', 'Web', 'Mobile', 'Cloud', 'AI/ML', 'Data']
+        };
+    }
+
+    // Build roadmap
+    const roadmap = `📚 **COMPREHENSIVE 60-DAY LEARNING ROADMAP FOR ${topic.toUpperCase()}**
+
+## PHASE 1: FOUNDATIONS & BASICS (Days 1-15)
+**Week Overview**: Master the fundamental concepts and building blocks of ${topic}
+
+**Topics to Cover:**
+${matched.phase1Topics.map(t => `- ${t}`).join('\n')}
+
+**Learning Activities:**
+- Day 1-3: Watch introductory tutorials and take structured notes
+- Day 4-7: Complete foundational exercises and coding challenges
+- Day 8-11: Build a simple beginner project (${matched.projects[0]})
+- Day 12-15: Review weak areas and reinforce fundamentals
+
+**Recommended Tools & Technologies:**
+${matched.tools.slice(0, 3).map(t => `- ${t}`).join('\n')}
+
+**Projects:**
+- ${matched.projects[0]}
+- Simple utility using core features of ${topic}
+
+**Resources:**
+- Official documentation and tutorials
+- Beginner-friendly online courses (Udemy, Coursera, freeCodeCamp)
+- Practice platforms and coding challenges
+- Community forums and Q&A sites
+
+**Expected Outcome**: Understand core concepts, set up environment, complete basic projects
+
+---
+
+## PHASE 2: CORE CONCEPTS & PRACTICAL APPLICATION (Days 16-30)
+**Week Overview**: Deepen understanding with hands-on practice and real-world scenarios
+
+**Topics to Cover:**
+${matched.phase2Topics.map(t => `- ${t}`).join('\n')}
+
+**Learning Activities:**
+- Day 16-20: Study advanced tutorials and case studies
+- Day 21-25: Build a medium-complexity project (${matched.projects[2]})
+- Day 26-30: Implement best practices in your projects
+
+**Recommended Tools & Technologies:**
+${matched.tools.slice(2, 5).map(t => `- ${t}`).join('\n')}
+
+**Projects:**
+- ${matched.projects[1]}
+- ${matched.projects[2]}
+- Real-world problem solving with ${topic}
+
+**Resources:**
+- Intermediate courses and documentation
+- Real-world project examples and source code
+- Technical blogs and case studies
+- Open-source repositories to learn from
+
+**Expected Outcome**: Build practical projects, understand design patterns, apply best practices
+
+---
+
+## PHASE 3: ADVANCED TOPICS & MASTERY (Days 31-45)
+**Week Overview**: Develop expertise with advanced patterns, optimization, and architecture
+
+**Topics to Cover:**
+${matched.phase3Topics.map(t => `- ${t}`).join('\n')}
+
+**Learning Activities:**
+- Day 31-35: Study advanced patterns and architectural concepts
+- Day 36-40: Build complex application (${matched.projects[4]})
+- Day 41-45: Optimize and refactor for production readiness
+
+**Recommended Tools & Technologies:**
+${matched.tools.slice(4, 7).map(t => `- ${t}`).join('\n')}
+
+**Projects:**
+- ${matched.projects[3]}
+- ${matched.projects[4]}
+- Performance optimization challenge
+- Security-focused implementation
+
+**Resources:**
+- Advanced courses and specialized training
+- Technical papers and research materials
+- Industry-standard tools and frameworks
+- Expert blogs and technical documentation
+
+**Expected Outcome**: Master advanced concepts, build scalable projects, production-ready skills
+
+---
+
+## PHASE 4: MASTERY, PROJECTS & CAREER PREPARATION (Days 46-60)
+**Week Overview**: Build portfolio projects and prepare for professional work
+
+**Topics to Cover:**
+${matched.phase4Topics.map(t => `- ${t}`).join('\n')}
+
+**Learning Activities:**
+- Day 46-50: Build comprehensive portfolio project (${matched.projects[5]})
+- Day 51-55: Contribute to open-source projects
+- Day 56-60: Prepare for technical interviews
+
+**Recommended Tools & Technologies:**
+${matched.tools.slice(6).map(t => `- ${t}`).join('\n')}
+
+**Projects:**
+- ${matched.projects[5]}
+- Open-source contribution
+- 3-5 quality GitHub portfolio projects
+- Technical blog posts or tutorials
+
+**Resources:**
+- Interview preparation resources specific to ${topic}
+- Portfolio building guides
+- Industry conferences and webinars
+- Mentorship and networking opportunities
+- Advanced certifications
+
+**Expected Outcome**: Professional-ready skills, portfolio projects, interview readiness
+
+---
+
+## CAREER INFORMATION
+
+**Job Roles Using ${topic.toUpperCase()}:**
+${matched.jobRoles.map(r => `- **${r.title}** - Salary: ${r.salary}`).join('\n')}
+
+**Industry Applications:**
+${matched.industryApps.map(a => `- ${a}`).join('\n')}
+
+**Related Technologies to Learn:**
+${matched.tools.map(t => `- ${t}`).join('\n')}
+
+---
+
+## PERFORMANCE MILESTONES & CHECKPOINTS
+
+**Week 2 Checkpoint:** Can explain core concepts of ${topic} in your own words
+**Week 4 Checkpoint:** Completed at least 2 small projects using ${topic}
+**Week 8 Checkpoint:** Built a functional medium-complexity application
+**Week 12 Checkpoint:** Understand advanced patterns and best practices
+**Week 16 Checkpoint:** Portfolio ready with 3-4 quality ${topic} projects
+
+---
+
+## NEXT STEPS AFTER 60 DAYS
+
+1. **Specialization**: Choose a specific area within ${topic} for deeper expertise
+2. **Contribution**: Start contributing to open-source projects related to ${topic}
+3. **Advanced Learning**: Pursue specialized certifications or advanced courses
+4. **Networking**: Join ${topic} communities and attend relevant conferences
+5. **Job Search**: Apply for positions requiring ${topic} expertise
+6. **Continuous Learning**: Stay updated with new developments in ${topic}
+
+**Estimated Time Investment**: 1-2 hours daily for consistent learning
+**Success Requires**: Consistent practice, building real projects, and community engagement`;
+
+    return roadmap;
+};
 
 /**
  * Generates intelligent mock responses that analyze answers for CORRECTNESS
@@ -282,185 +605,7 @@ const generateIntelligentMockResponse = (prompt, taskDescription) => {
     }
 
     if (taskDescription === 'learning roadmap') {
-        return `📚 **COMPREHENSIVE 60-DAY LEARNING ROADMAP FOR ${topic}**
-
-## PHASE 1: FOUNDATIONS & BASICS (Days 1-15)
-**Week Overview**: Master the fundamental concepts and building blocks of ${topic}
-
-**Topics to Cover:**
-- Core definitions and key terminology
-- Historical context and evolution
-- Basic architecture and components
-- Essential tools and environment setup
-- Fundamental principles and concepts
-- Common use cases and applications
-
-**Learning Activities:**
-- Day 1-3: Watch introductory tutorials and take structured notes
-- Day 4-7: Complete foundational exercises and coding challenges
-- Day 8-11: Build a simple beginner project (todo app, basic calculator, etc.)
-- Day 12-15: Review weak areas and practice fundamentals
-
-**Projects:**
-- Simple "Hello World" project demonstrating basic concepts
-- Small utility application using fundamental features
-
-**Resources:**
-- Official documentation and tutorials
-- Beginner-friendly online courses
-- Practice platforms and coding challenges
-- Community forums and Q&A sites
-
-**Outcome**: Understand core concepts, set up environment, complete basic projects
-
----
-
-## PHASE 2: CORE CONCEPTS & PRACTICAL APPLICATION (Days 16-30)
-**Week Overview**: Deepen understanding with hands-on practice and real-world scenarios
-
-**Topics to Cover:**
-- Intermediate concepts and advanced fundamentals
-- Best practices and design patterns
-- Integration with other tools/technologies
-- Performance optimization basics
-- Debugging and troubleshooting
-- Testing methodologies
-
-**Learning Activities:**
-- Day 16-20: Study advanced tutorials and case studies
-- Day 21-25: Build a medium-complexity project combining multiple concepts
-- Day 26-30: Implement best practices in your projects
-
-**Projects:**
-- Full-featured application with multiple components
-- Real-world problem solving project
-- Integration with APIs or external services
-
-**Resources:**
-- Intermediate courses and documentation
-- Real-world project examples and source code
-- Technical blogs and case studies
-- Open-source repositories to learn from
-
-**Outcome**: Build practical projects, understand design patterns, apply best practices
-
----
-
-## PHASE 3: ADVANCED TOPICS & MASTERY (Days 31-45)
-**Week Overview**: Develop expertise with advanced patterns, optimization, and architecture
-
-**Topics to Cover:**
-- Advanced architecture and system design
-- Performance optimization techniques
-- Security best practices
-- Scalability and reliability patterns
-- Advanced debugging and profiling
-- Specialized use cases and extensions
-
-**Learning Activities:**
-- Day 31-35: Study advanced patterns and architectural concepts
-- Day 36-40: Build a complex, production-like application
-- Day 41-45: Optimize and refactor projects for performance
-
-**Projects:**
-- Complex application with advanced features
-- Performance optimization challenge
-- Security-focused implementation
-- Microservices or distributed system project
-
-**Resources:**
-- Advanced courses and specialized training
-- Technical papers and whitepapers
-- Industry-standard tools and frameworks
-- Expert blogs and technical documentation
-
-**Outcome**: Master advanced concepts, build scalable projects, optimize for production
-
----
-
-## PHASE 4: MASTERY, PROJECTS & CAREER PREPARATION (Days 46-60)
-**Week Overview**: Build portfolio projects and prepare for professional work
-
-**Topics to Cover:**
-- Interview preparation and technical questions
-- Portfolio project development
-- Contributing to open-source
-- Building your personal brand
-- Staying updated with industry trends
-- Specialization areas and advanced topics
-
-**Learning Activities:**
-- Day 46-50: Build a comprehensive portfolio project
-- Day 51-55: Contribute to open-source projects
-- Day 56-60: Prepare for interviews and create learning summary
-
-**Projects:**
-- Capstone project showcasing all learned concepts
-- Open-source contribution
-- Technical blog posts or tutorials
-- GitHub portfolio with 3-5 quality projects
-
-**Resources:**
-- Interview preparation resources
-- Portfolio building guides
-- Industry conferences and webinars
-- Mentorship and networking opportunities
-
-**Outcome**: Professional-ready skills, portfolio projects, interview readiness
-
----
-
-## CAREER INFORMATION
-
-**Job Roles Using ${topic}:**
-- **Software Engineer** - Salary: $100k-$180k/year
-- **Full-Stack Developer** - Salary: $90k-$160k/year
-- **Senior Developer** - Salary: $120k-$200k/year
-- **DevOps Engineer** - Salary: $110k-$190k/year
-- **Solutions Architect** - Salary: $130k-$220k/year
-- **Technical Lead** - Salary: $120k-$200k/year
-- **Research Engineer** - Salary: $110k-$190k/year
-
-**Industry Applications:**
-- Enterprise software development
-- Cloud computing and infrastructure
-- Web and mobile applications
-- Data engineering and analytics
-- AI/ML and automation
-- Fintech and financial systems
-- Healthcare technology
-
-**Related Technologies to Learn:**
-- Complementary programming languages
-- Testing frameworks and tools
-- DevOps and deployment tools
-- Monitoring and logging solutions
-- Version control and collaboration tools
-- Cloud platforms (AWS, Azure, GCP)
-
----
-
-## PERFORMANCE MILESTONES & CHECKPOINTS
-
-**Week 2 Checkpoint:** Can explain core concepts in your own words
-**Week 4 Checkpoint:** Completed at least 2 small projects
-**Week 8 Checkpoint:** Built a functional medium-complexity application
-**Week 12 Checkpoint:** Understand advanced patterns and best practices
-**Week 16 Checkpoint:** Portfolio ready with 3-4 quality projects
-
----
-
-## NEXT STEPS AFTER 60 DAYS
-
-1. **Specialization**: Choose a specific area (e.g., architecture, performance, security)
-2. **Contribution**: Start contributing to open-source projects
-3. **Advanced Learning**: Pursue specialized certifications or advanced courses
-4. **Networking**: Join communities and attend conferences
-5. **Job Search**: Apply for positions matching your skill level and interests
-6. **Continuous Learning**: Stay updated with new developments and best practices
-
-**Estimated Time Investment**: 1-2 hours daily for consistent learning
-**Success Requires**: Consistent practice, building projects, and engaging with the community`;
+        return generateTopicSpecificRoadmap(topic);
     }
 
     return 'Mock response for: ' + taskDescription;
