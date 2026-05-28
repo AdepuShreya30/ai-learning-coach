@@ -217,12 +217,12 @@ const generateTopicSpecificRoadmap = (topic) => {
             projects: ['Command-line calculator', 'To-do list application', 'Web scraper', 'Data analysis project', 'Django/Flask web app', 'Machine learning project'],
             tools: ['pip', 'virtualenv', 'pytest', 'flake8', 'Django', 'Flask', 'NumPy', 'Pandas', 'Jupyter Notebook'],
             jobRoles: [
-                { title: 'Python Developer', salary: '$90k-$150k/year' },
-                { title: 'Data Scientist', salary: '$100k-$180k/year' },
-                { title: 'Backend Engineer', salary: '$95k-$165k/year' },
-                { title: 'Full-Stack Developer', salary: '$90k-$160k/year' },
-                { title: 'ML Engineer', salary: '$110k-$190k/year' },
-                { title: 'DevOps Engineer', salary: '$100k-$170k/year' }
+                'Python Developer',
+                'Data Scientist',
+                'Backend Engineer',
+                'Full-Stack Developer',
+                'ML Engineer',
+                'DevOps Engineer'
             ],
             industryApps: ['Web development', 'Data science and analytics', 'Machine learning', 'Automation and scripting', 'Scientific computing', 'Game development', 'Fintech and trading systems']
         },
@@ -234,12 +234,12 @@ const generateTopicSpecificRoadmap = (topic) => {
             projects: ['Counter app', 'Todo list', 'Weather app', 'E-commerce product page', 'Social media feed', 'Real-time chat application'],
             tools: ['Create React App', 'Webpack', 'Babel', 'React Router', 'Redux', 'Jest', 'React Testing Library', 'Next.js', 'TypeScript'],
             jobRoles: [
-                { title: 'Frontend Engineer', salary: '$95k-$165k/year' },
-                { title: 'React Developer', salary: '$90k-$160k/year' },
-                { title: 'Full-Stack Developer', salary: '$100k-$175k/year' },
-                { title: 'Senior Frontend Engineer', salary: '$130k-$210k/year' },
-                { title: 'UI Engineer', salary: '$90k-$155k/year' },
-                { title: 'Product Engineer', salary: '$100k-$180k/year' }
+                'Frontend Engineer',
+                'React Developer',
+                'Full-Stack Developer',
+                'Senior Frontend Engineer',
+                'UI Engineer',
+                'Product Engineer'
             ],
             industryApps: ['Web applications', 'Single Page Applications (SPAs)', 'Progressive Web Apps (PWAs)', 'Mobile apps (React Native)', 'Dashboard and analytics', 'Real-time collaborative tools']
         },
@@ -251,12 +251,12 @@ const generateTopicSpecificRoadmap = (topic) => {
             projects: ['Interactive webpage', 'Todo app', 'Weather API app', 'Game (Snake or Flappy Bird)', 'Chat application', 'Full-stack MERN app'],
             tools: ['Node.js', 'npm/yarn', 'Webpack', 'Babel', 'Jest', 'ESLint', 'Express.js', 'Mocha', 'Puppeteer'],
             jobRoles: [
-                { title: 'JavaScript Developer', salary: '$85k-$150k/year' },
-                { title: 'Frontend Developer', salary: '$90k-$160k/year' },
-                { title: 'Full-Stack Developer', salary: '$95k-$170k/year' },
-                { title: 'Backend Engineer (Node.js)', salary: '$95k-$165k/year' },
-                { title: 'DevOps Engineer', salary: '$100k-$175k/year' },
-                { title: 'Solutions Architect', salary: '$120k-$200k/year' }
+                'JavaScript Developer',
+                'Frontend Developer',
+                'Full-Stack Developer',
+                'Backend Engineer (Node.js)',
+                'DevOps Engineer',
+                'Solutions Architect'
             ],
             industryApps: ['Web applications', 'Server-side applications (Node.js)', 'Mobile apps (React Native, Electron)', 'Real-time applications', 'Browser extensions', 'Automation and scripting']
         },
@@ -268,12 +268,12 @@ const generateTopicSpecificRoadmap = (topic) => {
             projects: ['Dockerize a web app', 'Multi-container application', 'Microservices deployment', 'CI/CD pipeline', 'Kubernetes cluster setup', 'Production infrastructure'],
             tools: ['Docker Desktop', 'Docker Compose', 'Kubernetes', 'Helm', 'Jenkins', 'GitLab CI', 'GitHub Actions', 'Harbor Registry', 'Prometheus'],
             jobRoles: [
-                { title: 'DevOps Engineer', salary: '$105k-$185k/year' },
-                { title: 'SRE (Site Reliability Engineer)', salary: '$115k-$195k/year' },
-                { title: 'Infrastructure Engineer', salary: '$100k-$180k/year' },
-                { title: 'Cloud Engineer', salary: '$110k-$190k/year' },
-                { title: 'Solutions Architect', salary: '$130k-$220k/year' },
-                { title: 'Platform Engineer', salary: '$110k-$190k/year' }
+                'DevOps Engineer',
+                'SRE (Site Reliability Engineer)',
+                'Infrastructure Engineer',
+                'Cloud Engineer',
+                'Solutions Architect',
+                'Platform Engineer'
             ],
             industryApps: ['Microservices architecture', 'Cloud infrastructure', 'CI/CD pipelines', 'Container orchestration', 'DevOps automation', 'Scalable systems', 'Multi-cloud deployment']
         },
@@ -285,12 +285,12 @@ const generateTopicSpecificRoadmap = (topic) => {
             projects: ['Iris flower classification', 'Housing price prediction', 'Handwritten digit recognition (MNIST)', 'Sentiment analysis', 'Image classification', 'Recommendation system'],
             tools: ['Python', 'NumPy', 'Pandas', 'Scikit-learn', 'TensorFlow', 'PyTorch', 'Jupyter Notebook', 'Matplotlib', 'Seaborn', 'MLflow'],
             jobRoles: [
-                { title: 'Machine Learning Engineer', salary: '$110k-$190k/year' },
-                { title: 'Data Scientist', salary: '$100k-$180k/year' },
-                { title: 'AI/ML Specialist', salary: '$115k-$195k/year' },
-                { title: 'Research Scientist', salary: '$120k-$200k/year' },
-                { title: 'Deep Learning Engineer', salary: '$115k-$195k/year' },
-                { title: 'MLOps Engineer', salary: '$110k-$190k/year' }
+                'Machine Learning Engineer',
+                'Data Scientist',
+                'AI/ML Specialist',
+                'Research Scientist',
+                'Deep Learning Engineer',
+                'MLOps Engineer'
             ],
             industryApps: ['Predictive analytics', 'Computer vision', 'Natural language processing', 'Recommendation systems', 'Autonomous vehicles', 'Healthcare diagnostics', 'Financial forecasting']
         },
@@ -302,12 +302,12 @@ const generateTopicSpecificRoadmap = (topic) => {
             projects: ['Deploy a simple app', 'Multi-tier application', 'Stateful application', 'Service mesh setup', 'Custom operator', 'Production cluster'],
             tools: ['kubectl', 'Helm', 'Docker', 'Istio', 'Prometheus', 'Grafana', 'Jaeger', 'ArgoCD', 'Kustomize'],
             jobRoles: [
-                { title: 'Kubernetes Engineer', salary: '$110k-$190k/year' },
-                { title: 'DevOps Engineer', salary: '$105k-$185k/year' },
-                { title: 'SRE', salary: '$115k-$195k/year' },
-                { title: 'Platform Engineer', salary: '$110k-$190k/year' },
-                { title: 'Cloud Architect', salary: '$130k-$220k/year' },
-                { title: 'Infrastructure Engineer', salary: '$105k-$185k/year' }
+                'Kubernetes Engineer',
+                'DevOps Engineer',
+                'SRE',
+                'Platform Engineer',
+                'Cloud Architect',
+                'Infrastructure Engineer'
             ],
             industryApps: ['Container orchestration', 'Microservices deployment', 'Scalable infrastructure', 'Cloud-native applications', 'Edge computing', 'Multi-cloud strategies']
         },
@@ -319,12 +319,12 @@ const generateTopicSpecificRoadmap = (topic) => {
             projects: ['Calculator program', 'Bank account system', 'Student management system', 'REST API', 'Spring Boot application', 'Microservices architecture'],
             tools: ['JDK', 'Maven', 'Gradle', 'Spring Boot', 'Hibernate', 'JUnit', 'Mockito', 'Apache Tomcat', 'IntelliJ IDEA'],
             jobRoles: [
-                { title: 'Java Developer', salary: '$95k-$165k/year' },
-                { title: 'Backend Engineer', salary: '$100k-$175k/year' },
-                { title: 'Full-Stack Developer', salary: '$100k-$180k/year' },
-                { title: 'Senior Java Developer', salary: '$130k-$210k/year' },
-                { title: 'Microservices Engineer', salary: '$110k-$190k/year' },
-                { title: 'Solutions Architect', salary: '$130k-$220k/year' }
+                'Java Developer',
+                'Backend Engineer',
+                'Full-Stack Developer',
+                'Senior Java Developer',
+                'Microservices Engineer',
+                'Solutions Architect'
             ],
             industryApps: ['Enterprise applications', 'Web services', 'Microservices', 'Android development', 'Big data processing', 'Financial systems', 'E-commerce platforms']
         }
@@ -349,9 +349,9 @@ const generateTopicSpecificRoadmap = (topic) => {
             projects: ['Beginner project', 'Intermediate project', 'Advanced project', 'Real-world project', 'Portfolio project', 'Capstone project'],
             tools: ['Primary tools', 'Testing tools', 'Development tools', 'Deployment tools', 'Monitoring tools', 'Collaboration tools'],
             jobRoles: [
-                { title: 'Software Engineer', salary: '$95k-$165k/year' },
-                { title: 'Senior Engineer', salary: '$130k-$210k/year' },
-                { title: 'Architect', salary: '$140k-$230k/year' }
+                'Software Engineer',
+                'Senior Engineer',
+                'Architect'
             ],
             industryApps: ['Enterprise', 'Web', 'Mobile', 'Cloud', 'AI/ML', 'Data']
         };
@@ -482,7 +482,7 @@ ${matched.tools.slice(6).map(t => `- ${t}`).join('\n')}
 ## CAREER INFORMATION
 
 **Job Roles Using ${topic.toUpperCase()}:**
-${matched.jobRoles.map(r => `- **${r.title}** - Salary: ${r.salary}`).join('\n')}
+${matched.jobRoles.map(r => `- ${r}`).join('\n')}
 
 **Industry Applications:**
 ${matched.industryApps.map(a => `- ${a}`).join('\n')}
