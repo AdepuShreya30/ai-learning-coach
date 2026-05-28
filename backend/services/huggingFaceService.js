@@ -650,60 +650,34 @@ const generateIntelligentMockResponse = (prompt, taskDescription) => {
         });
     }
 
-    if (taskDescription === 'learner analysis') {
-        // Extract answers and analyze correctness
-        const answersMatch = prompt.match(/Answer: ([^\n]+)/gi) || [];
-        const answers = answersMatch.map(a => a.replace('Answer: ', '').trim());
-
-        // Analyze answer quality for CORRECTNESS
-        let correctnessScore = 0;
-        const fullText = answers.join(' ').toLowerCase();
-
-        // Check for conceptual correctness indicators
-        if (fullText.length > 150) correctnessScore += 20;
-        if (fullText.includes('concept') || fullText.includes('principle') || fullText.includes('definition')) correctnessScore += 15;
-        if (fullText.includes('example') || fullText.includes('instance') || fullText.includes('like')) correctnessScore += 15;
-        if (fullText.includes('reason') || fullText.includes('because') || fullText.includes('why')) correctnessScore += 10;
-        if (fullText.includes('system') || fullText.includes('framework') || fullText.includes('structure')) correctnessScore += 10;
-        if (fullText.includes('implement') || fullText.includes('apply') || fullText.includes('use')) correctnessScore += 10;
-        if (fullText.includes('complex') || fullText.includes('advanced') || fullText.includes('sophisticated')) correctnessScore += 10;
-        if (answers.every(a => a.length > 20)) correctnessScore += 10;
-
-        const score = Math.min(50 + correctnessScore, 95);
-
-        // Determine feedback based on CORRECTNESS level
-        const strengths = [];
-        const weaknesses = [];
-
-        if (fullText.includes('concept') || fullText.includes('principle')) {
-            strengths.push(`understanding core concepts of ${topic}`);
-        } else {
-            weaknesses.push(`explaining core concepts of ${topic}`);
-        }
-
-        if (fullText.includes('example') || fullText.includes('instance')) {
-            strengths.push(`providing examples in ${topic}`);
-        } else {
-            weaknesses.push(`providing concrete examples in ${topic}`);
-        }
-
-        if (fullText.includes('apply') || fullText.includes('use') || fullText.includes('implement')) {
-            strengths.push(`applying ${topic} practically`);
-        } else {
-            weaknesses.push(`applying ${topic} to real problems`);
-        }
-
-        if (strengths.length === 0) strengths.push(`foundational knowledge of ${topic}`);
-        if (weaknesses.length === 0) weaknesses.push(`advanced aspects of ${topic}`);
-
-        const performanceLevel = score >= 80 ? 'excellent' : score >= 60 ? 'solid' : score >= 40 ? 'developing' : 'needs improvement';
-        const summary = `Your answers show ${performanceLevel} understanding of ${topic} at ${score}%. Your strongest area: ${strengths[0]}. Focus on: ${weaknesses[0]}.`;
-
+    if (taskDescription === 'semantic evaluation') {
+        // Return mock semantic evaluation structure (no keyword-based scoring)
         return JSON.stringify({
-            score: score,
-            weak_topics: weaknesses.slice(0, 2),
-            strengths: strengths.slice(0, 2),
-            summary: summary
+            overall_score: 65,
+            skill_level: 'intermediate',
+            section_scores: {
+                fundamentals: 70,
+                practical: 65,
+                advanced: 55
+            },
+            question_analysis: [
+                {
+                    question_id: 1,
+                    technical_accuracy: 75,
+                    depth_of_knowledge: 60,
+                    practical_understanding: 70,
+                    critical_thinking: 60,
+                    clarity: 75,
+                    feedback: 'Good understanding of fundamentals with room for deeper exploration'
+                }
+            ],
+            strengths: ['Basic concept understanding', 'Clear communication'],
+            weaknesses: ['Limited practical examples', 'Missing advanced concepts'],
+            missing_concepts: ['Advanced design patterns', 'Performance optimization'],
+            shallow_answer_detected: false,
+            ai_generated_response_detected: false,
+            assessment_confidence: 0.85,
+            notes: 'Solid foundation, needs more practical application'
         });
     }
 

@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:7777';
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: BACKEND_URL,
@@ -55,8 +55,10 @@ export interface EvaluateResponse {
   data: {
     analysis: Analysis;
     coaching: string;
-    roadmap: string;
+    roadmap: string | Record<string, unknown>;
     judgeEnhancement?: Record<string, unknown>;
+    full_evaluation?: Record<string, unknown>;
+    next_steps?: string[];
   };
 }
 

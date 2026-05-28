@@ -2,11 +2,6 @@
 
 > An intelligent, personalized learning system powered by AI that assesses your knowledge, provides targeted coaching, and creates comprehensive learning roadmaps.
 
-[![Node.js](https://img.shields.io/badge/Node.js-v24.14.0-green)](https://nodejs.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-v15.0.0-black)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-v19.0.0-blue)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-v5.3.3-blue)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/License-ISC-yellow)](LICENSE)
 
 ---
 
@@ -49,18 +44,25 @@ AI Learning Coach is a full-stack web application that revolutionizes personaliz
 ## ✨ Features
 
 ### Core Learning Features
-- 🎓 **AI-Generated Quizzes**: Dynamic, topic-specific quiz questions at multiple difficulty levels
-- 📊 **Performance Analysis**: Detailed assessment with:
-  - Numerical scoring (0-100)
-  - Identified strengths and weak areas
-  - Personalized summary with actionable insights
-- 🎯 **Adaptive Coaching**: Intelligent response based on performance level:
-  - Score < 50%: Beginner-friendly explanations with foundational resources
-  - Score 50-80%: Intermediate guidance with best practices
-  - Score > 80%: Advanced challenges and optimization techniques
+- 🎓 **AI-Generated Quizzes**: 7 domain-specific questions covering:
+  - 2 Fundamental questions (core concepts)
+  - 2 Practical questions (real-world application)
+  - 2 Advanced questions (critical thinking)
+  - 1 Adaptive follow-up question
+  
+- 📊 **Semantic LLM Evaluation**: Multi-dimensional assessment across 5 dimensions:
+  - Technical Accuracy (0-100)
+  - Depth of Knowledge (0-100)
+  - Practical Understanding (0-100)
+  - Critical Thinking (0-100)
+  - Clarity & Communication (0-100)
+  - Red flag detection (shallow/AI-generated responses)
+  - Confidence scoring (0.0-1.0)
+
+
 
 ### Learning Roadmap
-- 📅 **60-Day Comprehensive Roadmap** (replaces 7-day plan):
+- 📅 **60-Day Comprehensive Roadmap** :
   - 4 distinct learning phases (15 days each)
   - Phase 1: Foundations & Basics
   - Phase 2: Core Concepts & Practical Application
@@ -68,7 +70,7 @@ AI Learning Coach is a full-stack web application that revolutionizes personaliz
   - Phase 4: Projects & Career Preparation
   
 - 💼 **Career Information**:
-  - 7+ relevant job roles with salary ranges ($90k-$220k)
+  - 7+ relevant job roles
   - Industry applications and use cases
   - Related technologies to learn
   - Specialization paths after completion
@@ -254,15 +256,12 @@ START
              │
              ▼
 ┌─────────────────────────────────────┐
-│  AI Generates 3 Quiz Questions      │
-│  • Fundamental concepts             │
-│  • Real-world application           │
-│  • Advanced critical thinking       │
+│  AI Generates Quiz Questions      │
 └────────────┬────────────────────────┘
              │
              ▼
 ┌─────────────────────────────────────┐
-│  User Answers All 3 Questions       │
+│  User Answers All Questions       │
 └────────────┬────────────────────────┘
              │
              ▼
@@ -381,197 +380,22 @@ If HuggingFace API is unavailable:
 
 ### 4. Prompt Engineering
 
-**Dynamic Prompts** created for each task:
+**Dynamic Prompts** created for each task
 
-```typescript
-// Example: Quiz Generation Prompt
-[INST] You are an expert AI curriculum designer. Your task is to create 
-3 quiz questions that assess a learner's understanding of "React".
+### 5. Semantic Evaluation Engine
 
-Create questions that test different levels:
-1. Question 1: Fundamental concepts and definitions
-2. Question 2: Application to real-world scenarios
-3. Question 3: Critical thinking and advanced understanding
-
-Return ONLY a valid JSON object:
-{
-  "questions": [...]
-}
-[/INST]
-```
-
-### 5. Scoring Algorithm
-
-**Multi-Factor Scoring**:
-- Answer length (1-20 points)
-- Keyword presence (concepts, examples, reasons)
-- Structural quality (explanations, examples)
-- Domain-specific indicators
-- Final score: 0-100 (capped at 95)
+**Multi-Dimensional Assessment**:
+- **Technical Accuracy**: Evaluates correctness and understanding depth
+- **Depth of Knowledge**: Assesses exploration beyond surface level
+- **Practical Understanding**: Checks for real-world application capability
+- **Critical Thinking**: Evaluates analysis, reasoning, and trade-offs
+- **Clarity & Communication**: Measures explanation quality and organization
+- **Overall Score**: Average of all 5 dimensions (0-100)
+- **Red Flag Detection**: Identifies shallow or AI-generated responses
+- **Confidence Scoring**: Indicates assessment reliability (0.0-1.0)
 
 ---
 
-## 📡 API Endpoints
-
-### 1. Generate Quiz Questions
-
-**Endpoint**: `POST /api/coach/generate-questions`
-
-**Request**:
-```json
-{
-  "topic": "JavaScript Closures"
-}
-```
-
-**Response**:
-```json
-{
-  "success": true,
-  "data": {
-    "topic": "JavaScript Closures",
-    "questions": [
-      {
-        "id": 1,
-        "question": "What are the fundamental concepts and core principles of JavaScript Closures?"
-      },
-      {
-        "id": 2,
-        "question": "How would you apply JavaScript Closures to a real-world scenario?"
-      },
-      {
-        "id": 3,
-        "question": "What are some advanced aspects of JavaScript Closures?"
-      }
-    ]
-  }
-}
-```
-
-### 2. Evaluate Answers & Get Coaching
-
-**Endpoint**: `POST /api/coach/evaluate`
-
-**Request**:
-```json
-{
-  "topic": "JavaScript Closures",
-  "questions": [
-    {"id": 1, "question": "What are closures?"},
-    {"id": 2, "question": "How do you create a closure?"},
-    {"id": 3, "question": "Name a use case for closures"}
-  ],
-  "answers": [
-    "A closure is a function that has access to variables from its parent scope",
-    "You create a closure by defining a function inside another function",
-    "Closures are used for data encapsulation and creating private variables"
-  ]
-}
-```
-
-**Response**:
-```json
-{
-  "success": true,
-  "data": {
-    "analysis": {
-      "score": 85,
-      "weak_topics": ["practical examples"],
-      "strengths": ["conceptual understanding"],
-      "summary": "Your answers show excellent understanding at 85%..."
-    },
-    "coaching": "You've shown good understanding. Ready for a challenge?...",
-    "roadmap": "📚 **60-DAY LEARNING ROADMAP**\nPhase 1: Foundations...",
-    "judgeEnhancement": null
-  }
-}
-```
-
-### Error Handling
-
-**Example Error Response**:
-```json
-{
-  "status": "fail",
-  "error": {
-    "statusCode": 400,
-    "status": "fail",
-    "isOperational": true
-  },
-  "message": "Topic is required",
-  "stack": "..."
-}
-```
-
-**HTTP Status Codes**:
-- `200`: Success
-- `400`: Bad Request (validation error)
-- `404`: Not Found
-- `429`: Too Many Requests (rate limited)
-- `500`: Server Error
-- `502`: Bad Gateway (LLM unavailable)
-
----
-
-## 📁 Project Structure
-
-```
-ai-learning-coach/
-├── backend/
-│   ├── controllers/
-│   │   └── aiCoachController.js      # Request handlers
-│   ├── routes/
-│   │   └── aiCoachRoutes.js          # API route definitions
-│   ├── services/
-│   │   ├── huggingFaceService.js     # LLM integration & mock system
-│   │   └── judgeService.js           # Optional validation service
-│   ├── middleware/
-│   │   ├── errorHandler.js           # Global error handling
-│   │   ├── rateLimiter.js            # Request rate limiting
-│   │   ├── validator.js              # Input validation
-│   │   └── timeoutHandler.js         # Request timeout management
-│   ├── utils/
-│   │   ├── aiPromptUtils.js          # Prompt templates & generation
-│   │   ├── ApiError.js               # Custom error class
-│   │   ├── asyncHandler.js           # Async middleware wrapper
-│   │   └── safeJsonParse.js          # JSON parsing utility
-│   ├── tests/
-│   │   └── aiCoach.test.js           # Unit tests
-│   ├── server.js                     # Express server setup
-│   ├── package.json                  # Dependencies
-│   ├── .env                          # Environment configuration
-│   └── .env.example                  # Example env file
-│
-├── frontend/
-│   ├── app/
-│   │   ├── page.tsx                  # Main landing page
-│   │   ├── layout.tsx                # Root layout
-│   │   └── api/
-│   │       └── ai-coach/             # API route proxies
-│   ├── components/
-│   │   ├── QuizScreen.tsx            # Quiz display component
-│   │   ├── ResultsScreen.tsx         # Results display component
-│   │   └── LoadingSpinner.tsx        # Loading indicator
-│   ├── lib/
-│   │   ├── api.ts                    # API client & endpoints
-│   │   └── hooks.ts                  # Custom React hooks
-│   ├── styles/
-│   │   └── globals.css               # Global styles
-│   ├── public/                       # Static assets
-│   ├── package.json                  # Dependencies
-│   ├── tsconfig.json                 # TypeScript config
-│   ├── .env.local                    # Frontend env
-│   └── .env.example                  # Example env file
-│
-├── README.md                         # This file
-├── ARCHITECTURE.md                   # Detailed architecture docs
-├── IMPLEMENTATION_GUIDE.md           # Implementation details
-├── SECURITY_REVIEW.md                # Security considerations
-├── TEST_CASES.md                     # Testing documentation
-└── LICENSE                           # ISC License
-```
-
----
 
 ## 💻 Technologies Used
 
@@ -711,154 +535,42 @@ ai-learning-coach/
 ## 🚀 Future Improvements
 
 ### Phase 1: Enhanced Learning Features (Q3 2024)
-- [ ] **Interactive Exercises**: Code playgrounds for programming topics
-- [ ] **Video Integration**: Embed tutorial videos in roadmaps
-- [ ] **Discussion Forum**: Peer-to-peer learning community
-- [ ] **Progress Tracking**: Visual progress dashboard
-- [ ] **Downloadable Roadmaps**: PDF export of learning plans
-- [ ] **Difficulty Adjustment**: Dynamic question difficulty based on user level
+- Interactive Exercises:
+- Video Integration
+- Discussion Forum
+- Progress Tracking
 
 ### Phase 2: Personalization & Analytics (Q4 2024)
-- [ ] **User Accounts**: Save progress, history, and preferences
-- [ ] **Learning Analytics**: Track progress over time
-- [ ] **Personalized Recommendations**: AI suggests topics based on interests
-- [ ] **Learning Style Detection**: Adapt content to visual/kinesthetic/auditory learners
-- [ ] **Spaced Repetition**: Intelligent review scheduling
-- [ ] **Skill Tree Visualization**: Visual representation of learning progress
+- User Accounts**: Save progress, history, and preferences
+- Learning Analytics
+- Personalized Recommendations
+- Skill Tree Visualization
 
 ### Phase 3: Advanced AI Features (Q1 2025)
-- [ ] **Multi-language Support**: Support for non-English topics
-- [ ] **Real-time Feedback**: Live coding feedback for programming topics
-- [ ] **Mentor Matching**: Connect learners with mentors in community
-- [ ] **Career Path Planner**: Extended roadmaps connecting multiple skills
-- [ ] **Interview Prep**: Interview question generation and feedback
-- [ ] **Advanced Judge Service**: Sophisticated answer validation
+- Multi-language Support
+- Mentor Matching
+- Career Path Planner
+- Interview Prep
 
 ### Phase 4: Enterprise Features (Q2 2025)
-- [ ] **Admin Dashboard**: Manage users, topics, and content
-- [ ] **Team Learning**: Collaborative learning paths for groups
-- [ ] **Custom Curriculum**: Organizations can create custom learning paths
-- [ ] **Certification Program**: Badges and certificates for completion
-- [ ] **API Tier System**: Freemium model with premium features
-- [ ] **White Label Option**: Customize branding for enterprise clients
+- Admin Dashboard
+- Team Learning
+- Custom Curriculum
+- Certification Program
 
 ### Phase 5: Infrastructure & Deployment (Ongoing)
-- [ ] **Database Integration**: PostgreSQL for persistence
-- [ ] **Redis Caching**: Performance optimization
-- [ ] **Microservices Architecture**: Scalability improvements
-- [ ] **Docker Containerization**: Easy deployment
-- [ ] **CI/CD Pipeline**: Automated testing and deployment
-- [ ] **Cloud Deployment**: AWS/GCP/Azure deployment guides
-- [ ] **Monitoring & Logging**: Application performance monitoring
-- [ ] **Load Balancing**: Handle increased traffic
+- Database Integration
+- Cloud Deployment
+- Monitoring & Logging
+- Load Balancing
 
 ### Phase 6: Mobile App (Q3 2025)
-- [ ] **React Native App**: iOS and Android versions
-- [ ] **Offline Mode**: Work without internet
-- [ ] **Push Notifications**: Learning reminders
-- [ ] **Mobile-Optimized UI**: Native mobile experience
-- [ ] **Sync Across Devices**: Seamless multi-device experience
+- *React Native App
+- Offline Mode
+- Push Notifications
+- Mobile-Optimized UI
 
-### Research Initiatives
-- [ ] **Machine Learning Optimization**: Use ML to predict learner success
-- [ ] **Adaptive Learning Algorithms**: Personalize learning paths
-- [ ] **Natural Language Understanding**: Better answer evaluation
-- [ ] **Curriculum Research**: Evidence-based learning effectiveness
-- [ ] **Learning Science Integration**: Evidence-based learning strategies
+
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. **Fork the repository**
-   ```bash
-   git clone https://github.com/yourusername/ai-learning-coach.git
-   cd ai-learning-coach
-   ```
-
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-3. **Make your changes**
-   - Follow existing code style
-   - Add tests for new features
-   - Update documentation
-
-4. **Commit your changes**
-   ```bash
-   git commit -m "Add your feature description"
-   ```
-
-5. **Push to your fork**
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-6. **Open a Pull Request**
-   - Describe your changes
-   - Link related issues
-   - Request review from maintainers
-
-### Code Standards
-- Use TypeScript for type safety
-- Follow existing naming conventions
-- Add comments for complex logic
-- Write unit tests for new features
-- Update README for significant changes
-
----
-
-## 📄 License
-
-This project is licensed under the **ISC License** - see the [LICENSE](LICENSE) file for details.
-
-```
-ISC License
-
-Copyright (c) 2024 AI Learning Coach Contributors
-
-Permission to use, copy, modify, and/or distribute this software for any purpose 
-with or without fee is hereby granted, provided that the above copyright notice 
-and this permission notice appear in all copies.
-```
-
----
-
-## 📞 Support & Contact
-
-- **Issues**: Open a GitHub issue for bugs and feature requests
-- **Discussions**: Use GitHub Discussions for questions and ideas
-- **Documentation**: Check [ARCHITECTURE.md](ARCHITECTURE.md) for technical details
-- **Security**: Report security issues to security@ailearningcoach.dev
-
----
-
-## 🙏 Acknowledgments
-
-- **HuggingFace** for providing LLM inference API
-- **OpenAI** for prompt engineering inspiration
-- **React & Next.js** communities for excellent frameworks
-- **Contributors** who help improve this project
-- **Learners** who test and provide feedback
-
----
-
-## 📊 Project Statistics
-
-- **Lines of Code**: 3,000+
-- **Components**: 50+
-- **API Endpoints**: 2 main routes
-- **Test Coverage**: Ongoing
-- **Languages**: TypeScript, JavaScript
-- **Development Time**: 2-3 months
-- **Latest Version**: 1.0.0
-
----
-
-**Made with ❤️ by the AI Learning Coach Team**
-
-⭐ If this project helped you, please consider giving it a star!
